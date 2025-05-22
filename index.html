@@ -9,25 +9,33 @@
       margin: 0;
       padding: 0;
       background: #fafdff;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       touch-action: none;
     }
+    .game-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
     canvas {
       background: #eae8e1;
       display: block;
-      margin: 30px auto;
+    }
+    .footer {
+      margin-top: 20px;
     }
     .parrots {
       display: flex;
       justify-content: center;
       gap: 5px;
-      margin-top: 10px;
     }
     .parrots img {
-      width: 42px; /* 60px * 0.7 */
+      width: 42px;
       height: auto;
     }
     .credit {
@@ -39,20 +47,24 @@
   </style>
 </head>
 <body>
-  <canvas id="tetris" width="240" height="600"></canvas>
-
-  <div class="parrots">
-    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+  <div class="game-container">
+    <canvas id="tetris" width="240" height="600"></canvas>
   </div>
 
-  <div class="credit">
-    使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
-    CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
+  <div class="footer">
+    <div class="parrots">
+      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+    </div>
+
+    <div class="credit">
+      使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
+      CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
+    </div>
   </div>
 
   <script>
@@ -257,7 +269,7 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 25); // 移動速度を2倍速くする
+    }, 5); // 移動速度を5倍速くする
 
     let touchStartX = null;
     let touchStartY = null;
