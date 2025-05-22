@@ -18,9 +18,7 @@
     canvas {
       background: #eae8e1;
       display: block;
-      margin: 20px auto;
-      transform: scale(0.5);
-      transform-origin: top center;
+      margin: 30px auto;
     }
     .parrots {
       display: flex;
@@ -29,7 +27,7 @@
       margin-top: 10px;
     }
     .parrots img {
-      width: 40px;
+      width: 60px;
       height: auto;
     }
     .credit {
@@ -41,15 +39,15 @@
   </style>
 </head>
 <body>
-  <canvas id="tetris" width="240" height="400"></canvas>
+  <canvas id="tetris" width="360" height="600"></canvas>
 
   <div class="parrots">
-    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
-    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
   </div>
 
   <div class="credit">
@@ -62,7 +60,7 @@
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
 
-    const scale = 20;
+    const scale = 30;
     canvas.width = 12 * scale;
     canvas.height = 20 * scale;
     context.scale(scale, scale);
@@ -220,8 +218,8 @@
     let dropCounter = 0;
     let dropInterval = 1000;
     let lastTime = 0;
-    let moveDelay = 0;
-    let moveInterval = 50;
+    let moveTimer = 0;
+    let moveSpeed = 0;
 
     function update(time = 0) {
       if (gameOver) {
@@ -231,7 +229,7 @@
       const deltaTime = time - lastTime;
       lastTime = time;
       dropCounter += deltaTime;
-      moveDelay += deltaTime;
+      moveTimer += deltaTime;
 
       if (dropCounter > dropInterval) playerDrop();
       draw();
@@ -239,13 +237,28 @@
     }
 
     document.addEventListener('keydown', e => {
-      if (moveDelay < moveInterval) return;
-      moveDelay = 0;
-      if (e.key === 'ArrowLeft') playerMove(-1);
-      else if (e.key === 'ArrowRight') playerMove(1);
-      else if (e.key === 'ArrowDown') playerDrop();
-      else if (e.key === 'ArrowUp') playerRotate();
+      if (e.key === 'ArrowLeft') {
+        playerMove(-1);
+        moveSpeed = -1;
+        moveTimer = 0;
+      } else if (e.key === 'ArrowRight') {
+        playerMove(1);
+        moveSpeed = 1;
+        moveTimer = 0;
+      } else if (e.key === 'ArrowDown') {
+        playerDrop();
+      } else if (e.key === 'ArrowUp') {
+        playerRotate();
+      }
     });
+
+    document.addEventListener('keyup', () => moveSpeed = 0);
+
+    setInterval(() => {
+      if (moveSpeed !== 0) {
+        playerMove(moveSpeed);
+      }
+    }, 50);
 
     let touchStartX = null;
     let touchStartY = null;
