@@ -1,141 +1,95 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>スマホ対応テトリス</title>
   <style>
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background: #111;
-      color: white;
-      font-family: sans-serif;
-      text-align: center;
+      overflow: hidden;
     }
     canvas {
       display: block;
-      margin: 0 auto;
-      background: black;
-      touch-action: none;
-      width: 100vw;
-      height: auto;
-      max-width: 100%;
-    }
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .controls button {
-      padding: 10px 15px;
-      font-size: 18px;
-      border: none;
-      border-radius: 5px;
-      background: #444;
-      color: white;
+      margin: auto;
+      background: #222;
     }
   </style>
 </head>
 <body>
-  <h1>スマホ対応テトリス</h1>
   <canvas id="tetris"></canvas>
-  <div class="controls">
-    <button onclick="playerMove(-1)">←</button>
-    <button onclick="playerRotate()">⟳</button>
-    <button onclick="playerMove(1)">→</button>
-    <button onclick="playerDrop()">↓</button>
-  </div>
-
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
 
-    function resizeCanvas() {
-      const size = Math.min(window.innerWidth, 360);
-      canvas.width = size;
-      canvas.height = size * (20 / 12); // same ratio as 12x20
-      context.scale(canvas.width / 12, canvas.height / 20);
-    }
-
-    window.addEventListener('resize', () => {
-      context.setTransform(1, 0, 0, 1, 0, 0); // reset scaling
-      resizeCanvas();
-    });
-    resizeCanvas();
-
-    const colors = {
-      'T': '#e91e63',
-      'O': '#ffeb3b',
-      'L': '#ff9800',
-      'J': '#3f51b5',
-      'I': '#00bcd4',
-      'S': '#4caf50',
-      'Z': '#f44336',
-    };
-
-    function arenaSweep() {
-      outer: for (let y = arena.length - 1; y >= 0; --y) {
-        for (let x = 0; x < arena[y].length; ++x) {
-          if (arena[y][x] === 0) continue outer;
-        }
-        arena.splice(y, 1);
-        arena.unshift(new Array(arena[0].length).fill(0));
-      }
-    }
-
-    function collide(arena, player) {
-      const [m, o] = [player.matrix, player.pos];
-      for (let y = 0; y < m.length; ++y) {
-        for (let x = 0; x < m[y].length; ++x) {
-          if (m[y][x] !== 0 &&
-              (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
-            return true;
-          }
-        }
-      }
-      return false;
-    }
+    const scale = 20;
+    let width = Math.floor(window.innerWidth / scale);
+    if (width > 12) width = 12;
+    canvas.width = width * scale;
+    canvas.height = 20 * scale;
+    context.scale(scale, scale);
 
     function createMatrix(w, h) {
-      return Array.from({ length: h }, () => new Array(w).fill(0));
+      const matrix = [];
+      while (h--) matrix.push(new Array(w).fill(0));
+      return matrix;
     }
+
+    const colors = [
+      null,
+      '#FF3B3B', '#FFB13B', '#3BFF57', '#3B92FF', '#C13BFF', '#FF3BA7', '#FFD93B'
+    ];
 
     function createPiece(type) {
       if (type === 'T') return [[0,1,0],[1,1,1],[0,0,0]];
-      if (type === 'O') return [[1,1],[1,1]];
-      if (type === 'L') return [[0,0,1],[1,1,1],[0,0,0]];
-      if (type === 'J') return [[1,0,0],[1,1,1],[0,0,0]];
-      if (type === 'I') return [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]];
-      if (type === 'S') return [[0,1,1],[1,1,0],[0,0,0]];
-      if (type === 'Z') return [[1,1,0],[0,1,1],[0,0,0]];
+      if (type === 'O') return [[2,2],[2,2]];
+      if (type === 'L') return [[0,0,3],[3,3,3],[0,0,0]];
+      if (type === 'J') return [[4,0,0],[4,4,4],[0,0,0]];
+      if (type === 'I') return [[0,0,0,0],[5,5,5,5],[0,0,0,0],[0,0,0,0]];
+      if (type === 'S') return [[0,6,6],[6,6,0],[0,0,0]];
+      if (type === 'Z') return [[7,7,0],[0,7,7],[0,0,0]];
     }
 
-    function draw() {
-      context.fillStyle = '#000';
-      context.fillRect(0, 0, 12, 20);
-      drawMatrix(arena, {x: 0, y: 0});
-      drawMatrix(player.matrix, player.pos, player.color);
-    }
-
-    function drawMatrix(matrix, offset, color = '#888') {
+    function drawMatrix(matrix, offset) {
       matrix.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            context.fillStyle = color;
+            context.fillStyle = colors[value];
             context.fillRect(x + offset.x, y + offset.y, 1, 1);
           }
         });
       });
     }
 
+    function draw() {
+      context.fillStyle = '#222';
+      context.fillRect(0, 0, canvas.width, canvas.height);
+      drawMatrix(arena, {x: 0, y: 0});
+      drawMatrix(player.matrix, player.pos);
+    }
+
     function merge(arena, player) {
       player.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            arena[y + player.pos.y][x + player.pos.x] = player.color;
+            arena[y + player.pos.y][x + player.pos.x] = value;
           }
         });
       });
+    }
+
+    function collide(arena, player) {
+      const [m, o] = [player.matrix, player.pos];
+      for (let y = 0; y < m.length; ++y) {
+        for (let x = 0; x < m[y].length; ++x) {
+          if (m[y][x] !== 0 && (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+            return true;
+          }
+        }
+      }
+      return false;
     }
 
     function playerDrop() {
@@ -154,18 +108,6 @@
       if (collide(arena, player)) player.pos.x -= dir;
     }
 
-    function playerReset() {
-      const pieces = 'TJLOSZI';
-      const type = pieces[Math.floor(Math.random() * pieces.length)];
-      player.matrix = createPiece(type);
-      player.color = colors[type];
-      player.pos.y = 0;
-      player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
-      if (collide(arena, player)) {
-        arena.forEach(row => row.fill(0));
-      }
-    }
-
     function playerRotate() {
       const m = player.matrix;
       for (let y = 0; y < m.length; ++y) {
@@ -174,36 +116,90 @@
         }
       }
       m.forEach(row => row.reverse());
+      if (collide(arena, player)) {
+        m.forEach(row => row.reverse());
+        for (let y = 0; y < m.length; ++y) {
+          for (let x = 0; x < y; ++x) {
+            [m[x][y], m[y][x]] = [m[y][x], m[x][y]];
+          }
+        }
+      }
     }
 
+    function playerReset() {
+      const pieces = 'TJLOSZI';
+      player.matrix = createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
+      player.pos.y = 0;
+      player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
+      if (collide(arena, player)) arena.forEach(row => row.fill(0));
+    }
+
+    function arenaSweep() {
+      outer: for (let y = arena.length - 1; y > 0; --y) {
+        for (let x = 0; x < arena[y].length; ++x) {
+          if (arena[y][x] === 0) continue outer;
+        }
+        const row = arena.splice(y, 1)[0].fill(0);
+        arena.unshift(row);
+        ++y;
+      }
+    }
+
+    const arena = createMatrix(width, 20);
+    const player = {
+      pos: {x: 0, y: 0},
+      matrix: null
+    };
+
     let dropCounter = 0;
-    let dropInterval = 800;
+    let dropInterval = 1000;
     let lastTime = 0;
 
     function update(time = 0) {
       const deltaTime = time - lastTime;
       lastTime = time;
       dropCounter += deltaTime;
-      if (dropCounter > dropInterval) {
-        playerDrop();
-      }
+      if (dropCounter > dropInterval) playerDrop();
       draw();
       requestAnimationFrame(update);
     }
 
-    document.addEventListener('keydown', event => {
-      if (event.key === 'ArrowLeft') playerMove(-1);
-      else if (event.key === 'ArrowRight') playerMove(1);
-      else if (event.key === 'ArrowDown') playerDrop();
-      else if (event.key === 'ArrowUp') playerRotate();
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') playerMove(-1);
+      else if (e.key === 'ArrowRight') playerMove(1);
+      else if (e.key === 'ArrowDown') playerDrop();
+      else if (e.key === 'ArrowUp') playerRotate();
     });
 
-    const arena = createMatrix(12, 20);
-    const player = {
-      pos: {x: 0, y: 0},
-      matrix: null,
-      color: '#fff',
-    };
+    // タッチ操作対応
+    let touchStartX = null;
+    let touchStartY = null;
+
+    canvas.addEventListener('touchstart', e => {
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+    });
+
+    canvas.addEventListener('touchend', e => {
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+        playerRotate();
+      } else if (Math.abs(dx) > Math.abs(dy)) {
+        if (dx > 0) playerMove(1);
+        else playerMove(-1);
+      } else if (dy > 50) {
+        while (!collide(arena, player)) player.pos.y++;
+        player.pos.y--;
+        merge(arena, player);
+        playerReset();
+        arenaSweep();
+        dropCounter = 0;
+      }
+    });
 
     playerReset();
     update();
