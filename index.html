@@ -8,7 +8,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #fafdff;
+      background: black;
       height: 100vh;
       display: flex;
       flex-direction: column;
@@ -31,27 +31,24 @@
       height: auto;
     }
     .footer {
-      margin-bottom: env(safe-area-inset-bottom, 10px);
       padding: 10px 0;
       width: 100%;
-      background: #fafdff;
+      background: black;
       box-sizing: border-box;
     }
     .parrots {
       display: flex;
       justify-content: center;
-      gap: 5px;
-      flex-wrap: wrap;
+      margin-bottom: 4px;
     }
     .parrots img {
-      width: 42px;
+      width: 48px;
       height: auto;
     }
     .credit {
       font-size: 0.7rem;
       text-align: center;
-      color: #333;
-      margin-top: 4px;
+      color: #ccc;
     }
   </style>
 </head>
@@ -62,19 +59,9 @@
 
   <div class="footer" style="flex-shrink: 0; padding: 10px 0; width: 100%; background: #fafdff; box-sizing: border-box;">
     <div class="parrots">
-      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
-      <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
+      <img src="img/matrixparrot.gif" alt="Parrot" />
     </div>
     
-  </div>
-    <div class="credit">
-      使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
-      CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
-    </div>
   </div>
     <div class="credit">
       使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
@@ -301,7 +288,7 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 0.03); // ミノ移動を30倍高速化 // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
+    }, 0.025); // ミノ移動を40倍高速化 // ミノ移動を30倍高速化 // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
 
     let touchStartX = null;
     let touchStartY = null;
