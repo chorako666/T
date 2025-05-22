@@ -57,10 +57,10 @@
 </head>
 <body>
   <div class="game-container">
-    <canvas id="tetris" width="240" height="600" style="touch-action: none;"></canvas>
+    <canvas id="tetris" width="240" height="600"></canvas>
   </div>
 
-  <div class="footer" style="flex-shrink: 0; padding: 10px 0; width: 100%; position: relative; background: #fafdff; box-sizing: border-box;">
+  <div class="footer" style="flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 10px);">
     <div class="parrots">
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
@@ -71,9 +71,15 @@
     </div>
     
   </div>
-  <div class="credit" style="padding-bottom: env(safe-area-inset-bottom, 16px); background: #fafdff; width: 100%;">
-    使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
-    CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
+    <div class="credit">
+      使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
+      CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
+    </div>
+  </div>
+    <div class="credit">
+      使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
+      CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
+    </div>
   </div>
 
   <script>
@@ -92,7 +98,7 @@
       '#008db7', // J
       '#009e9f', // I
       '#ffdc00', // S
-      '#f3981d'  // Z
+      '#6c3524'  // Z
     ];
 
     function createMatrix(w, h) {
@@ -295,7 +301,7 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 0.033); // ミノ移動を30倍高速化 // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
+    }, 0.05); // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
 
     let touchStartX = null;
     let touchStartY = null;
@@ -336,3 +342,9 @@
         }
       }
     }, { passive: false });
+
+    playerReset();
+    update();
+  </script>
+</body>
+</html>
