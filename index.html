@@ -52,7 +52,7 @@
     <canvas id="tetris" width="240" height="600"></canvas>
   </div>
 
-  <div class="footer">
+  <div class="footer" style="flex-shrink: 0;">
     <div class="parrots">
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
@@ -61,6 +61,11 @@
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
     </div>
+    <div class="credit">
+      使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
+      CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
+    </div>
+  </div>
     <div class="credit">
       使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
       CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
@@ -100,7 +105,7 @@
       matrix.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            context.fillStyle = ghost ? '#aaa6' : colors[value];
+            context.fillStyle = ghost ? '#ddd3' : colors[value];
             context.fillRect(x + offset.x, y + offset.y, 1, 1);
             context.strokeStyle = '#f7f6f5';
             context.lineWidth = 0.05;
@@ -280,7 +285,7 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 2); // ミノ移動をさらに3倍高速化
+    }, 0.5); // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
 
     let touchStartX = null;
     let touchStartY = null;
