@@ -13,35 +13,32 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      touch-action: none;
     }
     canvas {
-      background: #f0f0f0;
+      background: #ddd; /* 薄めのグレー */
       display: block;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
     #gameOver {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      font-size: 2rem;
-      font-weight: bold;
       background: rgba(255, 255, 255, 0.9);
-      padding: 1em 2em;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      padding: 20px 40px;
+      font-size: 2em;
+      border: 2px solid #999;
       display: none;
-      z-index: 10;
     }
   </style>
 </head>
 <body>
-  <div id="gameOver">Game Over</div>
   <canvas id="tetris"></canvas>
+  <div id="gameOver">Game Over</div>
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
-    const gameOverDisplay = document.getElementById('gameOver');
+    const gameOverDiv = document.getElementById('gameOver');
 
     const scale = 20;
     let width = Math.floor(window.innerWidth / scale);
@@ -58,13 +55,13 @@
 
     const colors = [
       null,
-      '#FFB6C1', // light pink
-      '#FFDAB9', // peach puff
-      '#B0E0E6', // powder blue
-      '#E6E6FA', // lavender
-      '#98FB98', // pale green
-      '#FFFACD', // lemon chiffon
-      '#D8BFD8'  // thistle
+      '#FFB6C1', // Light Pink
+      '#ADD8E6', // Light Blue
+      '#98FB98', // Pale Green
+      '#FFDAB9', // Peach Puff
+      '#E6E6FA', // Lavender
+      '#FFFACD', // Lemon Chiffon
+      '#D8BFD8'  // Thistle
     ];
 
     function createPiece(type) {
@@ -83,15 +80,13 @@
           if (value !== 0) {
             context.fillStyle = colors[value];
             context.fillRect(x + offset.x, y + offset.y, 1, 1);
-            context.strokeStyle = '#999'; // block border
-            context.strokeRect(x + offset.x, y + offset.y, 1, 1);
           }
         });
       });
     }
 
     function draw() {
-      context.fillStyle = '#f0f0f0';
+      context.fillStyle = '#ddd';
       context.fillRect(0, 0, canvas.width, canvas.height);
       drawMatrix(arena, {x: 0, y: 0});
       drawMatrix(player.matrix, player.pos);
@@ -159,7 +154,8 @@
       player.pos.y = 0;
       player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
       if (collide(arena, player)) {
-        gameOverDisplay.style.display = 'block';
+        arena.forEach(row => row.fill(0));
+        gameOverDiv.style.display = 'block';
         cancelAnimationFrame(animationId);
       }
     }
@@ -184,7 +180,7 @@
     let dropCounter = 0;
     let dropInterval = 1000;
     let lastTime = 0;
-    let animationId = null;
+    let animationId;
 
     function update(time = 0) {
       const deltaTime = time - lastTime;
@@ -202,18 +198,21 @@
       else if (e.key === 'ArrowUp') playerRotate();
     });
 
+    // タッチ操作対応
     let touchStartX = null;
     let touchStartY = null;
     let touchStartTime = null;
 
     canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
       const touch = e.touches[0];
       touchStartX = touch.clientX;
       touchStartY = touch.clientY;
       touchStartTime = Date.now();
-    });
+    }, { passive: false });
 
     canvas.addEventListener('touchend', e => {
+      e.preventDefault();
       const touch = e.changedTouches[0];
       const dx = touch.clientX - touchStartX;
       const dy = touch.clientY - touchStartY;
@@ -233,12 +232,10 @@
           dropCounter = 0;
         } else {
           player.pos.y++;
-          if (collide(arena, player)) {
-            player.pos.y--;
-          }
+          if (collide(arena, player)) player.pos.y--;
         }
       }
-    });
+    }, { passive: false });
 
     playerReset();
     update();
