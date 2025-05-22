@@ -55,12 +55,12 @@
     }
   </style>
 </head>
-<body>
-  <div class="game-container">
+<body style="height: 100dvh; display: flex; flex-direction: column; overflow: hidden;">
+  <div class="game-container" style="flex: 1; display: flex; align-items: center; justify-content: center;">
     <canvas id="tetris" width="240" height="600"></canvas>
   </div>
 
-  <div class="footer" style="flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 10px);">
+  <div class="footer" style="flex-shrink: 0; padding: 10px 0; width: 100%; background: #fafdff; box-sizing: border-box;">
     <div class="parrots">
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
@@ -98,7 +98,7 @@
       '#008db7', // J
       '#009e9f', // I
       '#ffdc00', // S
-      '#6c3524'  // Z
+      '#f3981d'  // Z
     ];
 
     function createMatrix(w, h) {
@@ -301,7 +301,7 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 0.05); // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
+    }, 0.03); // ミノ移動を30倍高速化 // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
 
     let touchStartX = null;
     let touchStartY = null;
