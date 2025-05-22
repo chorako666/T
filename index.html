@@ -9,8 +9,8 @@
       margin: 0;
       padding: 0;
       background: #fafdff;
-      height: 100vh;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       touch-action: none;
@@ -18,29 +18,56 @@
     canvas {
       background: #eae8e1;
       display: block;
+      margin: 20px auto;
+    }
+    .parrots {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .parrots img {
+      width: 40px;
+      height: auto;
+    }
+    .credit {
+      font-size: 0.7rem;
+      text-align: center;
+      color: #333;
+      margin-top: 8px;
     }
   </style>
 </head>
 <body>
-  <canvas id="tetris" width="240" height="600"></canvas>
+  <canvas id="tetris" width="240" height="400"></canvas>
+
+  <div class="parrots">
+    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
+    <img src="/mnt/data/shufflefurtherparrot.gif" alt="Parrot" />
+  </div>
+
+  <div class="credit">
+    Party Parrot images by John Hobbs, licensed under CC BY-SA 4.0.<br>
+    <a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a><br>
+    <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>
+  </div>
+
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
 
     const scale = 20;
     canvas.width = 12 * scale;
-    canvas.height = 30 * scale;
+    canvas.height = 20 * scale;
     context.scale(scale, scale);
 
     const colors = [
       null,
-      '#a7d28d', // T
-      '#e3acae', // O
-      '#d3d6dd', // L
-      '#a0d8ef', // J
-      '#a3d6cc', // I
-      '#8d93c8', // S
-      '#ffedab'  // Z
+      '#a7d28d', '#e3acae', '#d3d6dd', '#a0d8ef', '#a3d6cc', '#8d93c8', '#ffedab'
     ];
 
     function createMatrix(w, h) {
@@ -181,7 +208,7 @@
       }
     }
 
-    const arena = createMatrix(12, 30);
+    const arena = createMatrix(12, 20);
     const player = {
       pos: {x: 0, y: 0},
       matrix: null
@@ -191,6 +218,8 @@
     let dropCounter = 0;
     let dropInterval = 1000;
     let lastTime = 0;
+    let moveDelay = 0;
+    let moveInterval = 50;
 
     function update(time = 0) {
       if (gameOver) {
@@ -200,12 +229,16 @@
       const deltaTime = time - lastTime;
       lastTime = time;
       dropCounter += deltaTime;
+      moveDelay += deltaTime;
+
       if (dropCounter > dropInterval) playerDrop();
       draw();
       requestAnimationFrame(update);
     }
 
     document.addEventListener('keydown', e => {
+      if (moveDelay < moveInterval) return;
+      moveDelay = 0;
       if (e.key === 'ArrowLeft') playerMove(-1);
       else if (e.key === 'ArrowRight') playerMove(1);
       else if (e.key === 'ArrowDown') playerDrop();
