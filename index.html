@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>スマホ対応テトリス</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
@@ -28,11 +29,10 @@
       background-color: #736d71;
       color: #fafdff;
       font-size: 3em;
-      font-family: sans-serif;
-      display: flex;
+      font-family: 'Noto Sans', sans-serif;
+      display: none;
       align-items: center;
       justify-content: center;
-      opacity: 0;
       animation: blink 0.6s steps(1) infinite;
     }
     @keyframes blink {
@@ -43,7 +43,7 @@
 </head>
 <body>
   <canvas id="tetris"></canvas>
-  <div id="gameOver">GAME OVER</div>
+  <div id="gameOver" style="display: none;">GAME OVER</div>
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
@@ -92,9 +92,27 @@
       });
     }
 
+    function drawGridLines() {
+      context.strokeStyle = '#f7f6f5';
+      context.lineWidth = 0.05;
+      for (let x = 0; x < width; x++) {
+        context.beginPath();
+        context.moveTo(x, 0);
+        context.lineTo(x, height);
+        context.stroke();
+      }
+      for (let y = 0; y < height; y++) {
+        context.beginPath();
+        context.moveTo(0, y);
+        context.lineTo(width, y);
+        context.stroke();
+      }
+    }
+
     function draw() {
       context.fillStyle = '#eae8e1';
       context.fillRect(0, 0, canvas.width, canvas.height);
+      drawGridLines();
       drawMatrix(arena, {x: 0, y: 0});
       drawMatrix(player.matrix, player.pos);
     }
@@ -161,7 +179,9 @@
       player.pos.y = 0;
       player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
       if (collide(arena, player)) {
-        document.getElementById('gameOver').style.display = 'flex';
+        const gameOverElement = document.getElementById('gameOver');
+        gameOverElement.style.display = 'flex';
+        gameOverElement.style.animation = 'blink 0.6s steps(1) infinite';
         cancelAnimationFrame(animationId);
       }
     }
