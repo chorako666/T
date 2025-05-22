@@ -2,68 +2,46 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>スマホ対応テトリス</title>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: #fafdff;
       height: 100vh;
-      overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
+      touch-action: none; /* ⑤ スワイプによる画面更新防止 */
     }
     canvas {
       background: #eae8e1;
       display: block;
     }
-    #gameOver {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: #736d71;
-      color: #fafdff;
-      font-size: 3em;
-      font-family: 'Noto Sans', sans-serif;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      animation: blink 0.6s steps(1) infinite;
-    }
-    @keyframes blink {
-      0%, 50% { opacity: 1; }
-      50.1%, 100% { opacity: 0; }
-    }
   </style>
 </head>
 <body>
-  <canvas id="tetris"></canvas>
-  <div id="gameOver" style="display: none;">GAME OVER</div>
+  <canvas id="tetris" width="240" height="800"></canvas>
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
 
     const scale = 20;
-    let width = 10;
-    let height = 20;
-    canvas.width = width * scale;
-    canvas.height = height * scale;
+    canvas.width = 12 * scale;
+    canvas.height = 40 * scale;
     context.scale(scale, scale);
 
-    const colors = {
-      1: '#a7d28d', // T
-      2: '#e3acae', // O
-      3: '#d3d6dd', // L
-      4: '#a0d8ef', // J
-      5: '#a3d6cc', // I
-      6: '#8d93c8', // S
-      7: '#ffedab'  // Z
-    };
+    const colors = [
+      null,
+      '#a7d28d', // T
+      '#e3acae', // O
+      '#d3d6dd', // L
+      '#a0d8ef', // J
+      '#a3d6cc', // I
+      '#8d93c8', // S
+      '#ffedab'  // Z
+    ];
 
     function createMatrix(w, h) {
       const matrix = [];
@@ -92,29 +70,31 @@
       });
     }
 
-    function drawGridLines() {
+    function drawGrid() {
       context.strokeStyle = '#f7f6f5';
-      context.lineWidth = 0.05;
-      for (let x = 0; x < width; x++) {
+      for (let x = 1; x < arena[0].length; x++) {
         context.beginPath();
         context.moveTo(x, 0);
-        context.lineTo(x, height);
-        context.stroke();
-      }
-      for (let y = 0; y < height; y++) {
-        context.beginPath();
-        context.moveTo(0, y);
-        context.lineTo(width, y);
+        context.lineTo(x, arena.length);
         context.stroke();
       }
     }
 
     function draw() {
       context.fillStyle = '#eae8e1';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      drawGridLines();
+      context.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
+      drawGrid();
       drawMatrix(arena, {x: 0, y: 0});
       drawMatrix(player.matrix, player.pos);
+
+      if (gameOver) {
+        context.fillStyle = '#736d71';
+        context.fillRect(0, canvas.height / (2 * scale) - 1.5, canvas.width / scale, 3);
+        context.fillStyle = '#fafdff';
+        context.font = '1px Arial';
+        context.textAlign = 'center';
+        context.fillText('GAME OVER', canvas.width / (2 * scale), canvas.height / (2 * scale));
+      }
     }
 
     function merge(arena, player) {
@@ -179,10 +159,7 @@
       player.pos.y = 0;
       player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
       if (collide(arena, player)) {
-        const gameOverElement = document.getElementById('gameOver');
-        gameOverElement.style.display = 'flex';
-        gameOverElement.style.animation = 'blink 0.6s steps(1) infinite';
-        cancelAnimationFrame(animationId);
+        gameOver = true;
       }
     }
 
@@ -197,24 +174,28 @@
       }
     }
 
-    const arena = createMatrix(width, height);
+    const arena = createMatrix(12, 40);
     const player = {
       pos: {x: 0, y: 0},
       matrix: null
     };
+    let gameOver = false;
 
     let dropCounter = 0;
     let dropInterval = 1000;
     let lastTime = 0;
-    let animationId;
 
     function update(time = 0) {
+      if (gameOver) {
+        draw();
+        return;
+      }
       const deltaTime = time - lastTime;
       lastTime = time;
       dropCounter += deltaTime;
       if (dropCounter > dropInterval) playerDrop();
       draw();
-      animationId = requestAnimationFrame(update);
+      requestAnimationFrame(update);
     }
 
     document.addEventListener('keydown', e => {
@@ -224,7 +205,6 @@
       else if (e.key === 'ArrowUp') playerRotate();
     });
 
-    // タッチ操作対応 + スクロール防止
     let touchStartX = null;
     let touchStartY = null;
     let touchStartTime = null;
