@@ -59,7 +59,7 @@
 
   <div class="footer" style="flex-shrink: 0; padding: 10px 0; width: 100%; background: #fafdff; box-sizing: border-box;">
     <div class="parrots">
-      <img src="img/matrixparrot.gif" alt="Parrot" style="width: 48px; height: auto; display: block; border: none; background-color: transparent;" />
+      <img src="img/matrixparrot.gif" alt="Parrot" style="width: 48px; height: auto; display: block; background: none; border: none;" />
     </div>
     
   </div>
@@ -289,4 +289,50 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 0.016); // ミノ移動を60倍高速化
+    }, 0.016); // ミノ移動を60倍高速化 // ミノ移動を40倍高速化 // ミノ移動を30倍高速化 // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
+
+    let touchStartX = null;
+    let touchStartY = null;
+    let touchStartTime = null;
+
+    canvas.addEventListener('touchstart', e => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      touchStartTime = Date.now();
+    }, { passive: false });
+
+    canvas.addEventListener('touchend', e => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - touchStartX;
+      const dy = touch.clientY - touchStartY;
+      const dt = Date.now() - touchStartTime;
+
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
+        playerRotate();
+      } else if (Math.abs(dx) > Math.abs(dy)) {
+        playerMove(dx > 0 ? 1 : -1);
+      } else {
+        if (dy > 80 && dt < 200) {
+          while (!collide(arena, player)) player.pos.y++;
+          player.pos.y--;
+          merge(arena, player);
+          playerReset();
+          arenaSweep();
+          dropCounter = 0;
+        } else {
+          player.pos.y++;
+          if (collide(arena, player)) {
+            player.pos.y--;
+          }
+        }
+      }
+    }, { passive: false });
+
+    playerReset();
+    update();
+  </script>
+</body>
+</html>
