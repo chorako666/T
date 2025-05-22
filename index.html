@@ -60,7 +60,7 @@
     <canvas id="tetris" width="240" height="600" style="touch-action: none;"></canvas>
   </div>
 
-  <div class="footer" style="flex-shrink: 0; padding: 10px 0; width: 100%; position: relative;">
+  <div class="footer" style="flex-shrink: 0; padding: 10px 0; width: 100%; position: relative; background: #fafdff; box-sizing: border-box;">
     <div class="parrots">
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
@@ -71,10 +71,10 @@
     </div>
     
   </div>
-    <div class="credit">
-      使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
-      CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
-    </div>
+    <div class="credit" style="padding-bottom: env(safe-area-inset-bottom, 12px); background: #fafdff;">
+  使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
+  CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
+</div>
   </div>
     <div class="credit">
       使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
@@ -301,7 +301,7 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 0.05); // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
+    }, 0.033); // ミノ移動を30倍高速化 // ミノ移動を20倍高速化 // ミノ移動を20倍高速化 // ミノ移動をさらに10倍高速化 // ミノ移動をさらに3倍高速化
 
     let touchStartX = null;
     let touchStartY = null;
@@ -322,12 +322,26 @@
       const dy = touch.clientY - touchStartY;
       const dt = Date.now() - touchStartTime;
 
-      const columns = arena[0].length;
-      const threshold = canvas.width / 6; // 2列分程度を越えたら飛ばす
-
       if (Math.abs(dx) < 10 && Math.abs(dy) < 10) {
         playerRotate();
       } else if (Math.abs(dx) > Math.abs(dy)) {
+        playerMove(dx > 0 ? 1 : -1);
+      } else {
+        if (dy > 80 && dt < 200) {
+          while (!collide(arena, player)) player.pos.y++;
+          player.pos.y--;
+          merge(arena, player);
+          playerReset();
+          arenaSweep();
+          dropCounter = 0;
+        } else {
+          player.pos.y++;
+          if (collide(arena, player)) {
+            player.pos.y--;
+          }
+        }
+      }
+    }, { passive: false }); else if (Math.abs(dx) > Math.abs(dy)) {
         const jump = Math.round(dx / threshold);
         playerMove(jump);
       } else {
