@@ -1,28 +1,85 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>シンプルテトリス</title>
+  <meta charset="UTF-8">
+  <title>スマホ対応テトリス</title>
   <style>
-    canvas { background: #000; display: block; margin: 0 auto; }
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    canvas {
+      display: block;
+      margin: 0 auto;
+      background: black;
+      touch-action: none;
+      width: 100vw;
+      height: auto;
+      max-width: 100%;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .controls button {
+      padding: 10px 15px;
+      font-size: 18px;
+      border: none;
+      border-radius: 5px;
+      background: #444;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <canvas id="tetris" width="240" height="400"></canvas>
+  <h1>スマホ対応テトリス</h1>
+  <canvas id="tetris"></canvas>
+  <div class="controls">
+    <button onclick="playerMove(-1)">←</button>
+    <button onclick="playerRotate()">⟳</button>
+    <button onclick="playerMove(1)">→</button>
+    <button onclick="playerDrop()">↓</button>
+  </div>
+
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
-    context.scale(20, 20);
+
+    function resizeCanvas() {
+      const size = Math.min(window.innerWidth, 360);
+      canvas.width = size;
+      canvas.height = size * (20 / 12); // same ratio as 12x20
+      context.scale(canvas.width / 12, canvas.height / 20);
+    }
+
+    window.addEventListener('resize', () => {
+      context.setTransform(1, 0, 0, 1, 0, 0); // reset scaling
+      resizeCanvas();
+    });
+    resizeCanvas();
+
+    const colors = {
+      'T': '#e91e63',
+      'O': '#ffeb3b',
+      'L': '#ff9800',
+      'J': '#3f51b5',
+      'I': '#00bcd4',
+      'S': '#4caf50',
+      'Z': '#f44336',
+    };
 
     function arenaSweep() {
-      let rowCount = 1;
-      outer: for (let y = arena.length -1; y > 0; --y) {
+      outer: for (let y = arena.length - 1; y >= 0; --y) {
         for (let x = 0; x < arena[y].length; ++x) {
           if (arena[y][x] === 0) continue outer;
         }
-        const row = arena.splice(y, 1)[0].fill(0);
-        arena.unshift(row);
-        ++y;
+        arena.splice(y, 1);
+        arena.unshift(new Array(arena[0].length).fill(0));
       }
     }
 
@@ -31,7 +88,7 @@
       for (let y = 0; y < m.length; ++y) {
         for (let x = 0; x < m[y].length; ++x) {
           if (m[y][x] !== 0 &&
-             (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
+              (arena[y + o.y] && arena[y + o.y][x + o.x]) !== 0) {
             return true;
           }
         }
@@ -40,9 +97,7 @@
     }
 
     function createMatrix(w, h) {
-      const matrix = [];
-      while (h--) matrix.push(new Array(w).fill(0));
-      return matrix;
+      return Array.from({ length: h }, () => new Array(w).fill(0));
     }
 
     function createPiece(type) {
@@ -57,16 +112,16 @@
 
     function draw() {
       context.fillStyle = '#000';
-      context.fillRect(0, 0, canvas.width, canvas.height);
+      context.fillRect(0, 0, 12, 20);
       drawMatrix(arena, {x: 0, y: 0});
-      drawMatrix(player.matrix, player.pos);
+      drawMatrix(player.matrix, player.pos, player.color);
     }
 
-    function drawMatrix(matrix, offset) {
+    function drawMatrix(matrix, offset, color = '#888') {
       matrix.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            context.fillStyle = 'red';
+            context.fillStyle = color;
             context.fillRect(x + offset.x, y + offset.y, 1, 1);
           }
         });
@@ -77,7 +132,7 @@
       player.matrix.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            arena[y + player.pos.y][x + player.pos.x] = value;
+            arena[y + player.pos.y][x + player.pos.x] = player.color;
           }
         });
       });
@@ -101,7 +156,9 @@
 
     function playerReset() {
       const pieces = 'TJLOSZI';
-      player.matrix = createPiece(pieces[pieces.length * Math.random() | 0]);
+      const type = pieces[Math.floor(Math.random() * pieces.length)];
+      player.matrix = createPiece(type);
+      player.color = colors[type];
       player.pos.y = 0;
       player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
       if (collide(arena, player)) {
@@ -120,8 +177,9 @@
     }
 
     let dropCounter = 0;
-    let dropInterval = 1000;
+    let dropInterval = 800;
     let lastTime = 0;
+
     function update(time = 0) {
       const deltaTime = time - lastTime;
       lastTime = time;
@@ -143,7 +201,8 @@
     const arena = createMatrix(12, 20);
     const player = {
       pos: {x: 0, y: 0},
-      matrix: null
+      matrix: null,
+      color: '#fff',
     };
 
     playerReset();
