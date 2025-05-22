@@ -12,8 +12,8 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
       touch-action: none;
     }
     .game-container {
@@ -21,13 +21,14 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      flex-grow: 1;
     }
     canvas {
       background: #eae8e1;
       display: block;
     }
     .footer {
-      margin-top: 20px;
+      margin-bottom: 10px;
     }
     .parrots {
       display: flex;
@@ -42,7 +43,7 @@
       font-size: 0.7rem;
       text-align: center;
       color: #333;
-      margin-top: 8px;
+      margin-top: 4px;
     }
   </style>
 </head>
@@ -60,7 +61,6 @@
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
       <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
     </div>
-
     <div class="credit">
       使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
       CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
@@ -70,7 +70,6 @@
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
-
     const scale = 20;
     canvas.width = 12 * scale;
     canvas.height = 20 * scale;
@@ -97,12 +96,15 @@
       if (type === 'Z') return [[7,7,0],[0,7,7],[0,0,0]];
     }
 
-    function drawMatrix(matrix, offset) {
+    function drawMatrix(matrix, offset, ghost = false) {
       matrix.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            context.fillStyle = colors[value];
+            context.fillStyle = ghost ? '#aaa6' : colors[value];
             context.fillRect(x + offset.x, y + offset.y, 1, 1);
+            context.strokeStyle = '#f7f6f5';
+            context.lineWidth = 0.05;
+            context.strokeRect(x + offset.x, y + offset.y, 1, 1);
           }
         });
       });
@@ -125,13 +127,22 @@
       }
     }
 
+    function drawGhost() {
+      const pos = {x: player.pos.x, y: player.pos.y};
+      while (!collide(arena, {matrix: player.matrix, pos})) {
+        pos.y++;
+      }
+      pos.y--;
+      drawMatrix(player.matrix, pos, true);
+    }
+
     function draw() {
       context.fillStyle = '#eae8e1';
       context.fillRect(0, 0, canvas.width / scale, canvas.height / scale);
       drawGrid();
       drawMatrix(arena, {x: 0, y: 0});
+      drawGhost();
       drawMatrix(player.matrix, player.pos);
-
       if (gameOver) {
         context.fillStyle = '#736d71';
         context.fillRect(0, canvas.height / (2 * scale) - 1.5, canvas.width / scale, 3);
@@ -269,7 +280,7 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 5); // 移動速度を5倍速くする
+    }, 2); // ミノ移動をさらに3倍高速化
 
     let touchStartX = null;
     let touchStartY = null;
