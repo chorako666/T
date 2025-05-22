@@ -27,7 +27,7 @@
       margin-top: 10px;
     }
     .parrots img {
-      width: 60px;
+      width: 42px; /* 60px * 0.7 */
       height: auto;
     }
     .credit {
@@ -39,7 +39,7 @@
   </style>
 </head>
 <body>
-  <canvas id="tetris" width="360" height="600"></canvas>
+  <canvas id="tetris" width="240" height="600"></canvas>
 
   <div class="parrots">
     <img src="img/shufflefurtherparrot.gif" alt="Parrot" />
@@ -51,16 +51,15 @@
   </div>
 
   <div class="credit">
-    Party Parrot images by John Hobbs, licensed under CC BY-SA 4.0.<br>
-    <a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a><br>
-    <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>
+    使用素材：Cult of the Party Parrot（<a href="https://cultofthepartyparrot.com/" target="_blank">https://cultofthepartyparrot.com/</a>）<br>
+    CC BY-SA 4.0（<a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank">https://creativecommons.org/licenses/by-sa/4.0/</a>）
   </div>
 
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
 
-    const scale = 30;
+    const scale = 20;
     canvas.width = 12 * scale;
     canvas.height = 20 * scale;
     context.scale(scale, scale);
@@ -258,7 +257,7 @@
       if (moveSpeed !== 0) {
         playerMove(moveSpeed);
       }
-    }, 50);
+    }, 25); // 移動速度を2倍速くする
 
     let touchStartX = null;
     let touchStartY = null;
