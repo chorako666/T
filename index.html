@@ -8,29 +8,46 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: #111;
+      background: white;
       height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     canvas {
-      background: #222;
+      background: #f0f0f0;
       display: block;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    #gameOver {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      font-weight: bold;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1em 2em;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      display: none;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
+  <div id="gameOver">Game Over</div>
   <canvas id="tetris"></canvas>
   <script>
     const canvas = document.getElementById('tetris');
     const context = canvas.getContext('2d');
+    const gameOverDisplay = document.getElementById('gameOver');
 
     const scale = 20;
     let width = Math.floor(window.innerWidth / scale);
     if (width > 12) width = 12;
     canvas.width = width * scale;
-    canvas.height = 40 * scale; // 倍の高さに変更
+    canvas.height = 40 * scale;
     context.scale(scale, scale);
 
     function createMatrix(w, h) {
@@ -41,7 +58,13 @@
 
     const colors = [
       null,
-      '#FF3B3B', '#FFB13B', '#3BFF57', '#3B92FF', '#C13BFF', '#FF3BA7', '#FFD93B'
+      '#FFB6C1', // light pink
+      '#FFDAB9', // peach puff
+      '#B0E0E6', // powder blue
+      '#E6E6FA', // lavender
+      '#98FB98', // pale green
+      '#FFFACD', // lemon chiffon
+      '#D8BFD8'  // thistle
     ];
 
     function createPiece(type) {
@@ -60,13 +83,15 @@
           if (value !== 0) {
             context.fillStyle = colors[value];
             context.fillRect(x + offset.x, y + offset.y, 1, 1);
+            context.strokeStyle = '#999'; // block border
+            context.strokeRect(x + offset.x, y + offset.y, 1, 1);
           }
         });
       });
     }
 
     function draw() {
-      context.fillStyle = '#222';
+      context.fillStyle = '#f0f0f0';
       context.fillRect(0, 0, canvas.width, canvas.height);
       drawMatrix(arena, {x: 0, y: 0});
       drawMatrix(player.matrix, player.pos);
@@ -133,7 +158,10 @@
       player.matrix = createPiece(pieces[Math.floor(Math.random() * pieces.length)]);
       player.pos.y = 0;
       player.pos.x = (arena[0].length / 2 | 0) - (player.matrix[0].length / 2 | 0);
-      if (collide(arena, player)) arena.forEach(row => row.fill(0));
+      if (collide(arena, player)) {
+        gameOverDisplay.style.display = 'block';
+        cancelAnimationFrame(animationId);
+      }
     }
 
     function arenaSweep() {
@@ -156,6 +184,7 @@
     let dropCounter = 0;
     let dropInterval = 1000;
     let lastTime = 0;
+    let animationId = null;
 
     function update(time = 0) {
       const deltaTime = time - lastTime;
@@ -163,7 +192,7 @@
       dropCounter += deltaTime;
       if (dropCounter > dropInterval) playerDrop();
       draw();
-      requestAnimationFrame(update);
+      animationId = requestAnimationFrame(update);
     }
 
     document.addEventListener('keydown', e => {
@@ -173,7 +202,6 @@
       else if (e.key === 'ArrowUp') playerRotate();
     });
 
-    // タッチ操作対応
     let touchStartX = null;
     let touchStartY = null;
     let touchStartTime = null;
